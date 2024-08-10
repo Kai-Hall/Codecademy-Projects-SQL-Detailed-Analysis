@@ -1,13 +1,19 @@
--- task 1: Select all columns from the first 10 rows. What columns does the table have?
+-- task 1: Select all columns from the first 10 rows.
+
 SELECT *
 FROM survey
 LIMIT 10;
--- question, user_id, response
--- task 2
-/*SELECT question, COUNT(*)
+
+-- task 2: Create a quiz funnel using the GROUP BY command.
+
+What do you think is the reason?
+SELECT question, COUNT(*)
 FROM survey
-GROUP BY 1;*/
--- task 3
+GROUP BY 1;
+
+-- task 3: Using a spreadsheet program like Excel or Google Sheets, calculate the percentage of users who answer each question:
+-- Which question(s) of the quiz have a lower completion rates? What do you think is the reason?
+
 /* Percentage of users who moved onto the next funnel based on the previous
 N/A
 95.00%
@@ -23,8 +29,10 @@ N/A
 72.20%
 54.00%
 */
--- task 4
-/*SELECT *
+
+-- task 4: Examine the first five rows of each table
+
+SELECT *
 FROM quiz
 LIMIT 5;
 SELECT *
@@ -32,10 +40,12 @@ FROM home_try_on
 LIMIT 5;
 SELECT *
 FROM purchase
-LIMIT 5;*/
--- I'm not writing down the name of each column, too long read for yourself
--- task 5
-/*SELECT SUBSTR(q.user_id,1,8) AS 'user_id' , CASE
+LIMIT 5;
+
+-- task 5: Use a LEFT JOIN to combine the three tables, starting with the top of the funnel (quiz) and ending with the bottom of the funnel (purchase).
+-- Select only the first 10 rows from this table (otherwise, the query will run really slowly).
+
+SELECT SUBSTR(q.user_id,1,8) AS 'user_id' , CASE
   WHEN q.user_id = h.user_id THEN 'True'
   ELSE 'False'
   END AS 'is_home_try_on', CASE
@@ -50,10 +60,12 @@ LEFT JOIN  home_try_on AS  h
   ON q.user_id = h.user_id
 LEFT JOIN purchase AS p
   ON q.user_id = p.user_id
-LIMIT 10;*/
--- task 6
+LIMIT 10;
 
-/*WITH cleaned_data AS (
+-- task 6: Continue performing analysis of the datasets to create a powerpoint presentation on some actionable insights for Warby Parker.
+
+-- A/B test query for 3 and 5 pairs of glasses used to populate table 2
+WITH cleaned_data AS (
   SELECT SUBSTR(q.user_id,1,8) AS 'user_id' , CASE
     WHEN q.user_id = h.user_id THEN 'True'
     ELSE 'False'
@@ -72,50 +84,34 @@ LIMIT 10;*/
 )
 SELECT number_of_pairs, COUNT(DISTINCT(user_id)) AS 'No.recipients', is_purchase
 FROM cleaned_data
-GROUP BY number_of_pairs,is_purchase/;*/
+GROUP BY number_of_pairs,is_purchase;
 
-/*WITH cleaned_data AS (
-  SELECT SUBSTR(q.user_id,1,8) AS 'user_id' , CASE
-    WHEN q.user_id = h.user_id THEN 'True'
-    ELSE 'False'
-    END AS 'is_home_try_on', CASE
-    WHEN h.number_of_pairs NOT NULL THEN SUBSTR(h.number_of_pairs,1,2)
-    ELSE 'NULL'
-    END AS 'number_of_pairs', CASE
-    WHEN h.user_id = p.user_id THEN 'True'
-    ELSE 'False'
-    END AS 'is_purchase'
-  FROM quiz AS q
-  LEFT JOIN  home_try_on AS  h
-    ON q.user_id = h.user_id
-  LEFT JOIN purchase AS p
-    ON q.user_id = p.user_id
-)
-SELECT is_purchase, COUNT(DISTINCT(user_id)) AS 'Progressed_to_home_try_on'
-FROM cleaned_data
-GROUP BY 1;*/
-
-/*SELECT question, response, COUNT(*) AS 'No.who_answered'
+-- Queries the number of responses to each response for each question, used to make graphs 3 to 16
+SELECT question, response, COUNT(*) AS 'No.who_answered'
 FROM survey
 GROUP BY 1,2
-HAVING question LIKE '5%';*/
+HAVING question LIKE '5%';
 
-/*SELECT COUNT(q.user_id) AS 'No.users_who_completed_the_quiz', COUNT(h.user_id) AS 'No.users_who_recieved_a_hto', COUNT(p.user_id) AS 'No.users_who_made_a_purchase'
+-- Query to show funnel of number of people who participated in each of the quiz, hto and purchase stages, used to populate table 3
+SELECT COUNT(q.user_id) AS 'No.users_who_completed_the_quiz', COUNT(h.user_id) AS 'No.users_who_recieved_a_hto', COUNT(p.user_id) AS 'No.users_who_made_a_purchase'
 FROM quiz AS q
   LEFT JOIN home_try_on AS h
     ON  q.user_id = h.user_id
   LEFT JOIN purchase AS p
-    ON q.user_id = p.user_id;*/
+    ON q.user_id = p.user_id;
 
-/*SELECT question, COUNT(*) AS 'No.who_answered'
+-- Query to show funnel of number of people who participated in each question of the survey, used to populate table 6
+SELECT question, COUNT(*) AS 'No.who_answered'
 FROM survey
-GROUP BY 1;*/
+GROUP BY 1;
 
-/*SELECT color, COUNT(*) AS 'No.who_answered'
+-- Query used to identify the number of people who gave each response for each questions 1 to 4 from the quiz dataset, used to populate similar graphs to graph 16
+SELECT color, COUNT(*) AS 'No.who_answered'
 FROM quiz
-GROUP BY color;*/
+GROUP BY color;
 
-/*WITH temp1 AS (
+-- Query used to identify the drop off of people from one question to another with respect to what responses they had given previously, used to create graphs 3 to 14
+WITH temp1 AS (
   SELECT user_id, question, response
   FROM survey
   WHERE question LIKE '%4%' AND user_id IN (
@@ -126,9 +122,11 @@ GROUP BY color;*/
 
 SELECT question, response, COUNT(*) AS 'No.responses'
 FROM temp1
-GROUP BY 2;*/
+GROUP BY 2;
 
-/*WITH 
+-- Query used to get the top 10 complete design specifications provided by users from the survey dataset who completed all responses up to question 4, used to create similar
+-- tables to table 7 and 8 for the survey dataset located in Warby Parker.xlsx
+WITH 
 s1 AS (
   SELECT user_id, response
   FROM survey
@@ -158,12 +156,14 @@ GROUP BY 2,3,4,5
 HAVING Style NOT NULL AND Fit NOT NULL AND Shape NOT NULL AND 
  Color NOT NULL AND Style = "Men's Styles"
 ORDER BY 1 DESC
-LIMIT 10;*/
+LIMIT 10;
 
-/*SELECT COUNT(*) AS 'number_selected', style, fit, shape, color
+-- Query used to get a complete entry of design specifications provided by users from the quiz dataset who completed all responses up to question 4, used to populate 
+-- tables 7 and 8
+SELECT COUNT(*) AS 'number_selected', style, fit, shape, color
 FROM quiz
 GROUP BY 2,3,4,5
 HAVING style = "Men's Styles"
 -- Just replace Men's Styels with Women's Styles to get table 8 values
 ORDER BY 1 DESC
-LIMIT 10;*/
+LIMIT 10;
